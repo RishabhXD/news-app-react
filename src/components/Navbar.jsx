@@ -1,9 +1,6 @@
-// import PropTypes from "prop-types";
 import React, { Component } from "react";
 
 export default class Navbar extends Component {
-  static propTypes = {};
-
   render() {
     return (
       <header className="text-gray-400 bg-gray-900 body-font">
@@ -13,7 +10,7 @@ export default class Navbar extends Component {
             className="flex title-font font-medium items-center text-white mb-4 md:mb-0"
           >
             <svg
-              xmlns="./gor.svg"
+              xmlns=""
               fill="none"
               stroke="currentColor"
               strokeLinecap="round"
@@ -27,10 +24,10 @@ export default class Navbar extends Component {
             <span className="ml-3 text-xl">NewsApe</span>
           </a>
           <nav className="md:ml-auto flex flex-wrap items-center text-base justify-center">
-            <a href="/" className="mr-5 hover:text-white">
+            <a href="/" className="mr-5 hover:text-white hover:border-b-4">
               Home
             </a>
-            <a href="/about" className="mr-5 hover:text-white">
+            <a href="/about" className="mr-5 hover:text-white hover:border-b-4">
               About
             </a>
           </nav>
