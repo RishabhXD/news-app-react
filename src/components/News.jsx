@@ -320,12 +320,13 @@ export class News extends Component {
     };
   }
 
-  // async componentDidMount() {
-  // let url =
-  //   "https://newsapi.org/v2/everything?q=crypto&apiKey=d4dbb2c29bdc4152a0cb09f5f2a2ed24";
-  // let data = await fetch(url);
-  // let parsedData = await data.json();
-  // }
+  async componentDidMount() {
+    let url =
+      "https://newsapi.org/v2/everything?q=crypto&apiKey=d4dbb2c29bdc4152a0cb09f5f2a2ed24";
+    let data = await fetch(url);
+    let parsedData = await data.json();
+    this.setState({ articles: parsedData.articles });
+  }
 
   render() {
     return (
