@@ -1,0 +1,3 @@
+# news-app-react
+
+static
