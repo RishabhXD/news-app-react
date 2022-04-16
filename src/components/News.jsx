@@ -1,22 +1,24 @@
 import React, { Component } from "react";
 import NewsItems from "./NewsItems";
+import InfiniteScroll from "react-infinite-scroll-component";
 export class News extends Component {
   static defaultProps = {
     topic: "general",
     pageSize: 20,
   };
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       articles: [],
       loading: false,
       page: 1,
+      totalResults: 0,
     };
   }
 
-  async componentDidMount() {
-    let url = `https://newsapi.org/v2/everything?q=${this.props.topic}&apiKey=d4dbb2c29bdc4152a0cb09f5f2a2ed24&page=1&pageSize=${this.props.pageSize}`;
+  async updateNews() {
+    let url = `https://newsapi.org/v2/everything?q=${this.props.topic}&apiKey=dc28211083c64f7ab654b8a96ebaec50&page=${this.state.page}&pageSize=${this.props.pageSize}`;
 
     let data = await fetch(url);
     let parsedData = await data.json();
@@ -24,66 +26,44 @@ export class News extends Component {
       articles: parsedData.articles,
       totalResults: parsedData.totalResults,
     });
-    console.log(parsedData);
   }
 
-  handleNextClick = async () => {
-    if (!(this.state.page + 1 > Math.ceil(100 / this.props.pageSize))) {
-      let url = `https://newsapi.org/v2/everything?q=${
-        this.props.topic
-      }&apiKey=d4dbb2c29bdc4152a0cb09f5f2a2ed24&page=${
-        this.state.page + 1
-      }&pageSize=${this.props.pageSize}`;
-      let data = await fetch(url);
-      let parsedData = await data.json();
-      this.setState({
-        page: this.state.page + 1,
-        articles: parsedData.articles,
-      });
-    } else {
-    }
-  };
-  handlePrevClick = async () => {
-    let url = `https://newsapi.org/v2/everything?q=${
-      this.props.topic
-    }&apiKey=d4dbb2c29bdc4152a0cb09f5f2a2ed24&page=${
-      this.state.page - 1
-    }&pageSize=${this.props.pageSize}`;
+  async componentDidMount() {
+    let url = `https://newsapi.org/v2/everything?q=${this.props.topic}&apiKey=${this.props.apiKey}&page=1&pageSize=${this.props.pageSize}`;
 
     let data = await fetch(url);
     let parsedData = await data.json();
     this.setState({
-      page: this.state.page - 1,
       articles: parsedData.articles,
+      totalResults: parsedData.totalResults,
     });
+  }
+
+  fetchMoreData = async () => {
+    let url = `https://newsapi.org/v2/everything?q=${this.props.topic}&apiKey=dc28211083c64f7ab654b8a96ebaec50&page=${this.state.page}&pageSize=${this.props.pageSize}`;
+
+    let data = await fetch(url);
+    let parsedData = await data.json();
+    this.setState({
+      articles: this.state.articles.concat(parsedData.articles),
+      totalResults: parsedData.totalResults,
+      page: this.state.page + 1,
+    });
+  };
+
+  handleNextClick = async () => {
+    this.setState({ page: this.state.page + 1 });
+    this.updateNews();
+  };
+  handlePrevClick = async () => {
+    this.setState({ page: this.state.page - 1 });
+    this.updateNews();
   };
 
   render() {
     return (
       <section className="text-gray-400 body-font bg-gray-900">
         <div className="container p-5 mx-auto">
-          <div className="flex space-x-2 py-4 justify-center">
-            <div className="flex justify-between gap-x-8">
-              <button
-                type="button"
-                className="inline-block px-6 py-2.5 bg-indigo-500 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-indigo-700 hover:shadow-lg focus:bg-indigo-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-indigo-800 active:shadow-lg transition duration-150 ease-in-out"
-                disabled={this.state.page <= 1}
-                onClick={this.handlePrevClick}
-              >
-                &larr; Previous
-              </button>
-              <button
-                type="button"
-                className="inline-block px-6 py-2.5 bg-indigo-500 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-indigo-700 hover:shadow-lg focus:bg-indigo-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-indigo-800 active:shadow-lg transition duration-150 ease-in-out"
-                onClick={this.handleNextClick}
-                disabled={
-                  this.state.page + 1 > Math.ceil(100 / this.props.pageSize)
-                }
-              >
-                Next &rarr;
-              </button>
-            </div>
-          </div>
           <div className="flex flex-wrap -m-4">
             {this.state.articles.map((element) => {
               return (
@@ -96,28 +76,15 @@ export class News extends Component {
                 />
               );
             })}
-          </div>
-        </div>
-        <div className="flex space-x-2 justify-center">
-          <div className="flex justify-between gap-x-8">
-            <button
-              type="button"
-              className="inline-block px-6 py-2.5 bg-indigo-500 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-indigo-700 hover:shadow-lg focus:bg-indigo-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-indigo-800 active:shadow-lg transition duration-150 ease-in-out"
-              disabled={this.state.page <= 1}
-              onClick={this.handlePrevClick}
-            >
-              &larr; Previous
-            </button>
-            <button
-              type="button"
-              className="inline-block px-6 py-2.5 bg-indigo-500 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-indigo-700 hover:shadow-lg focus:bg-indigo-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-indigo-800 active:shadow-lg transition duration-150 ease-in-out"
-              onClick={this.handleNextClick}
-              disabled={
-                this.state.page + 1 > Math.ceil(100 / this.props.pageSize)
+            <InfiniteScroll
+              dataLength={this.state.articles.length}
+              next={this.fetchMoreData}
+              hasMore={
+                this.state.articles.length !==
+                Math.ceil(100 / this.props.pageSize)
               }
-            >
-              Next &rarr;
-            </button>
+              loader={<h4>Loading...</h4>}
+            ></InfiniteScroll>
           </div>
         </div>
       </section>
