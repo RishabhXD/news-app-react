@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import NewsItems from "./NewsItems";
 import InfiniteScroll from "react-infinite-scroll-component";
 const News = (props) => {
@@ -15,23 +15,22 @@ const News = (props) => {
     setTotalResults(parsedData.totalResults);
   };
 
-  const componentDidMount = async () => {
-    let url = `https://newsapi.org/v2/everything?q=${props.topic}&apiKey=${props.apiKey}&page=1&pageSize=${props.pageSize}`;
-
-    let data = await fetch(url);
-    let parsedData = await data.json();
-    setArticles(parsedData.articles);
-    setTotalResults(parsedData.totalResults);
-  };
+  useEffect(() => {
+    updateNews();
+  }, []);
 
   const fetchMoreData = async () => {
-    let url = `https://newsapi.org/v2/everything?q=${props.topic}&apiKey=dc28211083c64f7ab654b8a96ebaec50&page=${pages}&pageSize=${props.pageSize}`;
+    let url = `https://newsapi.org/v2/everything?q=${
+      props.topic
+    }&apiKey=dc28211083c64f7ab654b8a96ebaec50&page=${pages + 1}&pageSize=${
+      props.pageSize
+    }`;
+    setPages(pages + 1);
 
     let data = await fetch(url);
     let parsedData = await data.json();
-    setArticles(parsedData.articles);
+    setArticles(articles.concat(parsedData.articles));
     setTotalResults(parsedData.totalResults);
-    setPages(pages + 1);
   };
 
   return (
